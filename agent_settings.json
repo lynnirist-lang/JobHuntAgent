@@ -1,0 +1,48 @@
+{
+  "mode": "scheduled",
+  "start_time": "09:20",
+  "end_time": "22:30",
+  "auto_interval_minutes": 60,
+  "max_pages": 3,
+  "cooldown_minutes": 0,
+  "captcha_strategy": "pause",
+  "fail_strategy": "retry",
+  "score": {
+    "skip_threshold": 30,
+    "eligible_threshold": 50,
+    "high_threshold": 75,
+    "skill_gate": 40
+  },
+  "apply": {
+    "daily_limit": 30,
+    "delay_mean": 4.0,
+    "delay_std": 1.5,
+    "delay_min": 1.5,
+    "consecutive_fail_limit": 3
+  },
+  "greeting": {
+    "tone": "专业",
+    "word_count": 120,
+    "suffix": "",
+    "extra_instruction": "",
+    "include_skills": true,
+    "include_experience": true,
+    "include_project": false,
+    "concurrency": 8,
+    "timeout": 45
+  },
+  "resume_adapt": {
+    "top_n": 3,
+    "avoid_words": [],
+    "extra_instruction": "",
+    "highlight_keywords": true,
+    "adapt_tone": true
+  },
+  "search": {
+    "keywords": [
+      "软件测试"
+    ],
+    "city": "广州",
+    "salary_code": ""
+  }
+}

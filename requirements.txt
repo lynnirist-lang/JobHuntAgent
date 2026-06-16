@@ -1,0 +1,43 @@
+# Web
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+sse-starlette==2.1.3
+
+# Database
+sqlmodel==0.0.21
+aiosqlite==0.20.0
+
+# AI / LLM
+langchain==0.3.1
+langchain-openai==0.2.1
+# Local scoring (Chinese multilingual embeddings, ~470 MB initial download)
+# Domestic acceleration: set $env:HF_ENDPOINT = "https://hf-mirror.com" before installing
+# CPU-only torch (recommended, avoids ~2 GB CUDA download):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+sentence-transformers==3.3.1
+numpy>=1.24
+
+# Browser automation
+patchright==1.48.0.post0
+
+# Scheduler
+apscheduler==3.10.4
+
+# PDF parsing
+# unstructured[pdf]: strategy=fast only needs pdfminer.six
+# Automatically falls back to pdfplumber if not installed
+unstructured[pdf]==0.15.13
+pdfplumber==0.11.4
+
+# Utils
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+tenacity==8.5.0
+httpx==0.27.2
+
+# Testing
+pytest==8.3.3
+pytest-asyncio==0.24.0
+pytest-mock==3.14.0

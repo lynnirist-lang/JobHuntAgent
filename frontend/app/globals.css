@@ -1,0 +1,309 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  4-color palette
+    1. Purple  #8B5CF6  — primary / brand / identity
+    2. Blue    #3B82F6  — action / CTA / interactive
+    3. Green   #10B981  — success / positive / ready
+    4. White   #FFFFFF  — card / background base
+*/
+
+:root {
+  /* ── Purple — primary/brand ───────────────────────────────── */
+  --purple:        #8B5CF6;
+  --purple-mid:    #A78BFA;
+  --purple-dim:    rgba(139, 92, 246, 0.10);
+  --purple-border: rgba(139, 92, 246, 0.22);
+  --purple-glow:   rgba(139, 92, 246, 0.28);
+  --purple-dark:   #7C3AED;
+
+  /* ── Blue — CTA/action ────────────────────────────────────── */
+  --blue-brand:        #3B82F6;
+  --blue-brand-mid:    #60A5FA;
+  --blue-brand-dim:    rgba(59, 130, 246, 0.10);
+  --blue-brand-border: rgba(59, 130, 246, 0.22);
+  --blue-brand-glow:   rgba(59, 130, 246, 0.28);
+  --blue-brand-dark:   #2563EB;
+
+  /* ── Green — success/positive ─────────────────────────────── */
+  --green-brand:        #10B981;
+  --green-brand-mid:    #34D399;
+  --green-brand-dim:    rgba(16, 185, 129, 0.10);
+  --green-brand-border: rgba(16, 185, 129, 0.22);
+  --green-brand-glow:   rgba(16, 185, 129, 0.28);
+  --green-brand-dark:   #059669;
+
+  /* ── Backgrounds ─────────────────────────────────────────── */
+  --bg:  #F7F8FF;
+  --bg2: #EEEEFF;
+
+  /* ── Cards ───────────────────────────────────────────────── */
+  --card:        #FFFFFF;
+  --card-border: rgba(255, 255, 255, 0.92);
+
+  /* ── Text ────────────────────────────────────────────────── */
+  --fg:     #1A1A2E;
+  --muted:  #5B5B7A;
+  --muted2: #9898B8;
+
+  /* ── Backward-compat aliases ──────────────────────────────── */
+  --card2:        #F0F0FF;
+  --accent:       #8B5CF6;
+  --accent-dim:   rgba(139,92,246,0.10);
+  --accent-border:rgba(139,92,246,0.22);
+  --green:        #10B981;
+  --green-dim:    rgba(16,185,129,0.10);
+  --green-border: rgba(16,185,129,0.22);
+  --red:          #F43F5E;
+  --red-dim:      rgba(244,63,94,0.10);
+  --red-border:   rgba(244,63,94,0.26);
+  --blue:         #3B82F6;
+  --blue-dim:     rgba(59,130,246,0.10);
+  --blue-border:  rgba(59,130,246,0.22);
+  --amber:        #F59E0B;
+  --amber-dim:    rgba(245,158,11,0.10);
+  --amber-border: rgba(245,158,11,0.22);
+  --border:       rgba(139,92,246,0.10);
+  --border2:      rgba(139,92,246,0.20);
+
+  /* ── Clay shadows (purple-tinted) ─────────────────────────── */
+  --clay:       8px 8px 22px rgba(139,92,246,0.09), -2px -2px 7px rgba(255,255,255,0.88), inset 0 1px 0 rgba(255,255,255,0.97);
+  --clay-sm:    4px 4px 13px rgba(139,92,246,0.07), -1px -1px 4px rgba(255,255,255,0.85);
+  --clay-hover: 12px 12px 30px rgba(139,92,246,0.15), -3px -3px 9px rgba(255,255,255,0.92), inset 0 1px 0 rgba(255,255,255,0.97);
+  --clay-press: 2px 2px 8px rgba(139,92,246,0.12), inset 0 1px 0 rgba(255,255,255,0.70);
+
+  /* ── Layout ──────────────────────────────────────────────── */
+  --sidebar-w: 230px;
+  --topbar-h:  54px;
+  --radius:    20px;
+  --radius-sm: 14px;
+  --radius-xs: 10px;
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  body {
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 12% 8%,  rgba(139,92,246,0.10) 0%, transparent 52%),
+      radial-gradient(ellipse at 88% 92%, rgba(16,185,129,0.08) 0%, transparent 48%),
+      radial-gradient(ellipse at 55% 0%,  rgba(59,130,246,0.07) 0%, transparent 40%);
+    background-attachment: fixed;
+    color: var(--fg);
+    font-family: var(--font-nunito), 'Nunito', system-ui, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar       { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.20); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(139,92,246,0.36); }
+}
+
+@keyframes progress-slide {
+  0%   { transform: translateX(-150%); }
+  100% { transform: translateX(400%); }
+}
+.bar-indeterminate {
+  width: 35% !important;
+  animation: progress-slide 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@layer components {
+  /* Clay card */
+  .clay-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 3px solid var(--card-border);
+    box-shadow: var(--clay);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .clay-card:hover {
+    box-shadow: var(--clay-hover);
+    transform: translateY(-2px);
+  }
+
+  /* ── Flat fill buttons with bounce ───────────────────────── */
+  .clay-btn {
+    border: none;
+    border-radius: var(--radius-xs);
+    font-family: var(--font-nunito), 'Nunito', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .clay-btn:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+
+  .btn-3d {
+    border: none;
+    font-family: var(--font-nunito), 'Nunito', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Purple — primary brand button */
+  .btn-3d-purple {
+    background: #8B5CF6;
+    color: #fff;
+    box-shadow: none;
+  }
+
+  /* Blue — CTA/action button */
+  .btn-3d-blue {
+    background: #3B82F6;
+    color: #fff;
+    box-shadow: none;
+  }
+
+  /* Green — success button */
+  .btn-3d-green {
+    background: #10B981;
+    color: #fff;
+    box-shadow: none;
+  }
+
+  /* Legacy aliases */
+  .btn-3d-indigo { background: #8B5CF6; color: #fff; box-shadow: none; }
+  .btn-3d-orange { background: #3B82F6; color: #fff; box-shadow: none; }
+  .btn-3d-emerald { background: #10B981; color: #fff; box-shadow: none; }
+
+  /* ── Glassmorphism utilities ─────────────────────────────── */
+  .glass {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.70);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 4px 20px rgba(139,92,246,0.08), inset 0 1px 0 rgba(255,255,255,0.90);
+  }
+
+  /* ── Hover / focus states ────────────────────────────────── */
+
+  /* Flat fill buttons */
+  .btn-flat-blue {
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-flat-blue:hover {
+    background: #2563EB !important;
+    box-shadow: 0 4px 18px rgba(59,130,246,0.32) !important;
+  }
+  .btn-flat-blue:focus-visible { outline: 2px solid #3B82F6; outline-offset: 2px; }
+
+  .btn-flat-purple {
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-flat-purple:hover {
+    background: #7C3AED !important;
+    box-shadow: 0 4px 18px rgba(139,92,246,0.32) !important;
+  }
+  .btn-flat-purple:focus-visible { outline: 2px solid #8B5CF6; outline-offset: 2px; }
+
+  /* Legacy aliases */
+  .btn-flat-orange { transition: background 0.15s ease, box-shadow 0.15s ease; }
+  .btn-flat-orange:hover { background: #2563EB !important; box-shadow: 0 4px 18px rgba(59,130,246,0.32) !important; }
+  .btn-flat-indigo { transition: background 0.15s ease, box-shadow 0.15s ease; }
+  .btn-flat-indigo:hover { background: #7C3AED !important; box-shadow: 0 4px 18px rgba(139,92,246,0.32) !important; }
+
+  /* Inputs / selects / tag containers */
+  .input-clay {
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .input-clay:hover {
+    border-color: rgba(139,92,246,0.32) !important;
+  }
+  .input-clay:focus,
+  .input-clay:focus-within {
+    border-color: rgba(139,92,246,0.58) !important;
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.10) !important;
+    outline: none;
+  }
+
+  /* Job queue list items */
+  .job-item {
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    cursor: default;
+  }
+  .job-item:hover {
+    background: rgba(139,92,246,0.10) !important;
+    border-color: rgba(139,92,246,0.24) !important;
+    transform: translateX(2px);
+  }
+
+  /* Activity log items */
+  .log-item {
+    transition: background 0.12s ease;
+  }
+  .log-item:hover {
+    background: rgba(139,92,246,0.06) !important;
+  }
+
+  /* Quick action links */
+  .quick-link-purple {
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .quick-link-purple:hover {
+    background: rgba(139,92,246,0.16) !important;
+    box-shadow: 0 2px 10px rgba(139,92,246,0.14) !important;
+  }
+
+  .quick-link-blue {
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .quick-link-blue:hover {
+    background: rgba(59,130,246,0.16) !important;
+    box-shadow: 0 2px 10px rgba(59,130,246,0.14) !important;
+  }
+
+  .quick-link-green {
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .quick-link-green:hover {
+    background: rgba(16,185,129,0.16) !important;
+    box-shadow: 0 2px 10px rgba(16,185,129,0.14) !important;
+  }
+
+  /* Legacy aliases */
+  .quick-link-indigo { transition: background 0.15s ease, box-shadow 0.15s ease; }
+  .quick-link-indigo:hover { background: rgba(139,92,246,0.16) !important; box-shadow: 0 2px 10px rgba(139,92,246,0.14) !important; }
+  .quick-link-emerald { transition: background 0.15s ease, box-shadow 0.15s ease; }
+  .quick-link-emerald:hover { background: rgba(16,185,129,0.16) !important; box-shadow: 0 2px 10px rgba(16,185,129,0.14) !important; }
+
+  /* Ghost buttons (topbar) */
+  .btn-ghost {
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-ghost:hover {
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 2px 8px rgba(139,92,246,0.10) !important;
+  }
+
+  /* Danger ghost button */
+  .btn-ghost-danger {
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn-ghost-danger:hover {
+    background: rgba(244,63,94,0.15) !important;
+    border-color: rgba(244,63,94,0.38) !important;
+  }
+
+  /* Cancel / small inline button */
+  .btn-cancel {
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .btn-cancel:hover {
+    background: rgba(244,63,94,0.08) !important;
+    color: #F43F5E !important;
+    border-color: rgba(244,63,94,0.24) !important;
+  }
+}
