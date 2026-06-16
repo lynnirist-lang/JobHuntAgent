@@ -136,7 +136,53 @@ ApplyJobSkill            → 浏览器自动填写 + 发送（SENT）
 
 ---
 
-## 四、关键设计决策
+## 四、Hermes Agent 架构
+
+Hermes 是系统的自然语言控制层，让用户通过对话驱动整个求职流水线，无需手动点击 UI。
+
+### 调用链路
+
+```
+用户消息（前端 /chat）
+    │  POST /agent/hermes，携带完整对话历史
+    ▼
+hermes_agent.run()          ← AsyncGenerator，产出文本 chunks
+    │
+    ├─ LLM（bind_tools）ainvoke
+    │       │
+    │       ├─ 有工具调用 → execute_tool() → ToolMessage → 追加历史 → 继续循环
+    │       │                    └─ 同时 yield "正在查询岗位列表…" 给前端
+    │       │
+    │       └─ 无工具调用 → 最终回复，按 8 字符分块 yield（打字机效果）
+    │
+    └─ 最多 8 轮（_MAX_ROUNDS），防止工具调用死循环
+    │
+    ▼
+FastAPI StreamingResponse   → Vercel AI SDK v3 data stream 格式
+    │
+    ▼
+前端 useChat() 实时渲染
+```
+
+### 12 个工具及风险分级
+
+System Prompt 内置了四级操作规范，控制 LLM 何时可以直接执行、何时必须先确认：
+
+| 级别 | 工具 | 规则 |
+|---|---|---|
+| 查询（无风险） | `list_jobs` `get_job_detail` `get_scrape_status` `get_today_stats` `get_settings` | 直接执行 |
+| 单条操作 | `approve_job` `skip_job` `update_greeting` `update_settings` | 直接执行 |
+| 批量批准 | `batch_approve_jobs` | 先 `list_jobs` 确认数量，告知用户后执行 |
+| 高风险 | `enqueue_jobs` `start_scrape` | 展示将操作的岗位列表，明确征得确认后执行 |
+
+### 与常规 UI 的区别
+
+- Web UI 岗位列表：每个岗位单独点击批准，强制人工逐条审阅
+- Hermes 对话：可一句话触发"批准所有匹配分 ≥ 75 的岗位并立即投递"，适合熟悉系统后的高效操作
+
+---
+
+## 五、关键设计决策
 
 **1. 两个事件循环**
 Windows 上 FastAPI 运行在 asyncio 默认循环，而 Patchright 需要 `ProactorEventLoop` 才能创建浏览器子进程。解决方案：启动时另开一个线程专跑 ProactorEventLoop，所有浏览器操作通过 `asyncio.run_coroutine_threadsafe` 提交过去。
@@ -155,7 +201,7 @@ BOSS 直聘页面结构会改变。CSS 选择器统一放在 `data/selectors.jso
 
 ---
 
-## 五、快速定位
+## 六、快速定位
 
 | 想查什么 | 去哪里找 |
 |---|---|

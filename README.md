@@ -4,6 +4,7 @@
 
 ## 功能特性
 
+- **Hermes Agent**：内置 LLM 对话控制台，用自然语言指挥全流程（"帮我搜索上海 Python 岗位并批准高分的"）；基于 LangChain Tool Use，最多 8 轮工具调用，SSE 流式回复
 - **岗位爬取**：Patchright（Undetected Playwright）按关键词/城市/薪资自动抓取 BOSS 直聘职位
 - **AI 匹配评分**：Sentence-Transformers 向量相似度 + 技能门槛打分（0-100），自动分档（跳过/低优先/匹配）
 - **简历定制**：ResumeAgent 根据 JD 关键词自动改写简历要点，保留结构字段；可在岗位详情页手动触发
