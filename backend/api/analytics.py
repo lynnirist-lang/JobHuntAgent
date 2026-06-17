@@ -58,8 +58,7 @@ async def get_analytics(
     r = (await session.execute(text(f"""
         SELECT
             COUNT(*)                                                    AS total_scraped,
-            SUM(status IN ('SENT','READ','REPLIED','PENDING_SEND'))      AS total_sent,
-            SUM(status = 'REPLIED')                                     AS total_replied,
+            SUM(status IN ('SENT','PENDING_SEND'))                      AS total_sent,
             SUM(status = 'SKIPPED' OR status = 'FAILED')               AS total_skipped,
             SUM(status = 'PENDING')                                     AS pending,
             SUM(status = 'MATCHED')                                     AS matched,
@@ -69,12 +68,10 @@ async def get_analytics(
 
     total_scraped  = int(r["total_scraped"]  or 0)
     total_sent     = int(r["total_sent"]     or 0)
-    total_replied  = int(r["total_replied"]  or 0)
     total_skipped  = int(r["total_skipped"]  or 0)
     avg_score      = float(r["avg_score"]    or 0)
     pending        = int(r["pending"]        or 0)
     matched        = int(r["matched"]        or 0)
-    reply_rate     = round(total_replied / max(total_sent, 1) * 100, 1)
 
     # ── 每日趋势（scraped_at & sent_at 按天聚合）───────────────
     daily_scraped_rows = (await session.execute(text(f"""
@@ -117,7 +114,7 @@ async def get_analytics(
     for row in title_rows:
         cat = _classify(row["title"] or "")
         cat_total[cat] = cat_total.get(cat, 0) + 1
-        if row["status"] in ("SENT", "READ", "REPLIED", "PENDING_SEND"):
+        if row["status"] in ("SENT", "PENDING_SEND"):
             cat_sent[cat] = cat_sent.get(cat, 0) + 1
 
     categories = sorted(
@@ -193,13 +190,6 @@ async def get_analytics(
             "desc":  f"还有 {pending} 个岗位等待 AI 评分处理",
         })
 
-    if total_replied > 0:
-        insights.append({
-            "emoji": "💬",
-            "title": "回复情况",
-            "desc":  f"共收到 {total_replied} 条 HR 回复，回复率 {reply_rate}%",
-        })
-
     if not insights:
         insights.append({
             "emoji": "💡",
@@ -211,12 +201,10 @@ async def get_analytics(
         "summary": {
             "total_scraped": total_scraped,
             "total_sent":    total_sent,
-            "total_replied": total_replied,
             "total_skipped": total_skipped,
             "pending":       pending,
             "matched":       matched,
             "avg_score":     avg_score,
-            "reply_rate":    reply_rate,
         },
         "daily":      daily,
         "categories": categories,

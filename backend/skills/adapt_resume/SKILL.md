@@ -1,9 +1,10 @@
 ---
-name: adapt_resume
-version: 1.0.0
+name: adapt-resume
 description: 根据指定岗位 JD，对用户现有经历进行针对性措辞调整（不编造内容）
-skill_type: llm
-model: deepseek-chat
+metadata:
+  version: 1.0.0
+  skill_type: llm
+  model: deepseek-chat
 ---
 
 ## Purpose

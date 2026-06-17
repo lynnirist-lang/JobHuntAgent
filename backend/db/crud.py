@@ -232,11 +232,9 @@ async def count_today_sent(session: AsyncSession) -> int:
         .where(
             Application.status.in_([  # type: ignore[attr-defined]
                 ApplicationStatus.SENT,
-                ApplicationStatus.READ,
-                ApplicationStatus.REPLIED,
             ]),
             func.date(Application.sent_at) == today.isoformat(),
-            Job.status.in_([JobStatus.SENT, JobStatus.READ, JobStatus.REPLIED]),  # type: ignore[attr-defined]
+            Job.status == JobStatus.SENT,  # type: ignore[attr-defined]
         )
     )
     result = await session.execute(stmt)
@@ -246,7 +244,7 @@ async def count_today_sent(session: AsyncSession) -> int:
 async def count_total_sent(session: AsyncSession) -> int:
     """统计历史累计已投递岗位数（以 job 表状态为准，与效果分析页一致）。"""
     stmt = select(func.count()).select_from(Job).where(
-        Job.status.in_([JobStatus.SENT, JobStatus.READ, JobStatus.REPLIED])  # type: ignore[attr-defined]
+        Job.status == JobStatus.SENT  # type: ignore[attr-defined]
     )
     result = await session.execute(stmt)
     return result.scalar() or 0

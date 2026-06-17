@@ -27,7 +27,7 @@
     "extra_instruction": "",
     "include_skills": true,
     "include_experience": true,
-    "include_project": false,
+    "include_project": true,
     "concurrency": 8,
     "timeout": 45
   },
@@ -42,7 +42,7 @@
     "keywords": [
       "软件测试"
     ],
-    "city": "广州",
+    "city": "深圳",
     "salary_code": ""
   }
 }

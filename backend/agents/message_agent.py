@@ -2,8 +2,8 @@
 MessageAgent — 生成个性化打招呼语。
 
 三阶段流程：
-  1. 结构化评分：keyword_scan(JD) → 对每条经历/项目打分排序
-  2. 模板筛选：按 GreetingConfig 控制的维度构建精简档案摘要
+  1. 结构化评分：keyword_scan(JD) → 提取关键词注入 prompt
+  2. 模板筛选：用 embedding 余弦相似度对经历/项目排序，按 GreetingConfig 维度筛选
   3. AI 生成：system prompt 由 GreetingConfig 驱动（语气/字数/额外要求）
 
 GreetingConfig 中的每个字段都实际影响生成行为：
@@ -14,6 +14,7 @@ GreetingConfig 中的每个字段都实际影响生成行为：
   suffix            → 追加到最终生成文字之后
 """
 
+import asyncio
 import json
 import logging
 from typing import Optional
@@ -26,27 +27,19 @@ from ..core.llm import get_llm
 from ..core.profile import UserProfile
 from ..core.settings_store import GreetingConfig
 from ..resume_parser.skills_vocab import keyword_scan
+from ..scoring import embedder as _embedder
 
 logger = logging.getLogger(__name__)
 
 _TOP_N = 2  # 打招呼字数有限，top-2 经历/项目足够
 
 
-# ─────────────────────────── Phase 1 & 2: 结构化评分 ─────────────────
+# ─────────────────────────── Phase 2: 语义排序 ───────────────────────
 
-def _score_exp(exp: dict, kw_set: set) -> int:
-    text = " ".join([exp.get("company", ""), exp.get("role", "")] + exp.get("bullets", []))
-    return sum(1 for kw in kw_set if kw.lower() in text.lower())
-
-
-def _score_proj(proj: dict, kw_set: set) -> int:
-    text = " ".join([proj.get("name", ""), proj.get("tech", "")] + proj.get("highlights", []))
-    return sum(1 for kw in kw_set if kw.lower() in text.lower())
-
-
-def _build_excerpt(profile: UserProfile, jd_keywords: set, config: GreetingConfig) -> str:
+async def _build_excerpt(profile: UserProfile, jd_text: str, config: GreetingConfig) -> str:
     """
-    构建按 JD 关键词相关度排序的精简档案摘要。
+    构建按 JD 语义相似度排序的精简档案摘要。
+    用 embedding 余弦相似度替代关键词计数，捕获同义表达（如"MLE"↔"机器学习工程师"）。
     include_* 开关控制每个维度是否出现。
     """
     excerpt: dict = {
@@ -56,15 +49,49 @@ def _build_excerpt(profile: UserProfile, jd_keywords: set, config: GreetingConfi
         }
     }
 
+    # 需要编码的文本列表：[jd, exp0, exp1, ..., proj0, proj1, ...]
+    texts_to_encode: list[str] = [jd_text[:2000]]
+    exp_dicts: list[dict] = []
+    proj_dicts: list[dict] = []
+
     if config.include_experience and profile.experiences:
-        all_exp = [e.model_dump() for e in profile.experiences]
-        ranked = sorted(all_exp, key=lambda e: _score_exp(e, jd_keywords), reverse=True)
-        excerpt["top_experiences"] = ranked[:_TOP_N]
+        exp_dicts = [e.model_dump() for e in profile.experiences]
+        for e in exp_dicts:
+            texts_to_encode.append(
+                " ".join([e.get("company", ""), e.get("role", "")] + e.get("bullets", []))
+            )
 
     if config.include_project and profile.projects:
-        all_proj = [p.model_dump() for p in profile.projects]
-        ranked = sorted(all_proj, key=lambda p: _score_proj(p, jd_keywords), reverse=True)
-        excerpt["top_projects"] = ranked[:_TOP_N]
+        proj_dicts = [p.model_dump() for p in profile.projects]
+        for p in proj_dicts:
+            texts_to_encode.append(
+                " ".join([p.get("name", ""), p.get("tech", "")] + p.get("highlights", []))
+            )
+
+    # 一次批量编码，在线程池中运行避免阻塞事件循环
+    if len(texts_to_encode) > 1:
+        vecs = await asyncio.to_thread(_embedder.encode, texts_to_encode)
+        jd_vec = vecs[0]
+        idx = 1
+
+        if exp_dicts:
+            exp_sims = [
+                _embedder.cosine_similarity(jd_vec, vecs[idx + i])
+                for i in range(len(exp_dicts))
+            ]
+            idx += len(exp_dicts)
+            ranked_exp = [e for _, e in sorted(zip(exp_sims, exp_dicts), key=lambda x: x[0], reverse=True)]
+            excerpt["top_experiences"] = ranked_exp[:_TOP_N]
+            logger.debug("经历语义相似度: %s", [f"{s:.3f}" for s in sorted(exp_sims, reverse=True)])
+
+        if proj_dicts:
+            proj_sims = [
+                _embedder.cosine_similarity(jd_vec, vecs[idx + i])
+                for i in range(len(proj_dicts))
+            ]
+            ranked_proj = [p for _, p in sorted(zip(proj_sims, proj_dicts), key=lambda x: x[0], reverse=True)]
+            excerpt["top_projects"] = ranked_proj[:_TOP_N]
+            logger.debug("项目语义相似度: %s", [f"{s:.3f}" for s in sorted(proj_sims, reverse=True)])
 
     if config.include_skills and profile.skills:
         excerpt["skills"] = profile.skills[:20]
@@ -152,15 +179,15 @@ class MessageAgent:
         """
         config = config or GreetingConfig()
 
-        # Phase 1: 结构化评分 — 从 JD 提取技能关键词
-        jd_keywords = set(keyword_scan(jd_text))
+        # Phase 1: 从 JD 提取技能关键词（注入 prompt，不再用于排序）
+        jd_keywords = keyword_scan(jd_text)
         jd_keywords_str = (
             "、".join(sorted(jd_keywords)) if jd_keywords else "（无特定技术关键词）"
         )
         logger.debug("JD 关键词 %d 个", len(jd_keywords))
 
-        # Phase 2: 模板 — 按 config 维度筛选，构建精简档案摘要
-        profile_excerpt = _build_excerpt(profile, jd_keywords, config)
+        # Phase 2: 用 embedding 相似度排序，构建精简档案摘要
+        profile_excerpt = await _build_excerpt(profile, jd_text, config)
 
         # JD 摘要（可附加 match_reason 引导方向）
         jd_summary = jd_text[:1500]

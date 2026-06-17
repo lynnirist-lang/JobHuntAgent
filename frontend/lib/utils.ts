@@ -29,8 +29,6 @@ export const STATUS_LABELS: Record<string, string> = {
   approved: "已批准",
   skipped: "已跳过",
   sent: "已投递",
-  read: "已读",
-  replied: "有回复",
   low_priority: "低优先级",
   failed: "投递失败",
 };

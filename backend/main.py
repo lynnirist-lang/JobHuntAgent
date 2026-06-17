@@ -98,7 +98,7 @@ def create_app() -> FastAPI:
     )
 
     # ── CORS ──────────────────────────────────────────────────
-    # 允许 Next.js 前端（localhost:3000）跨域调用 API
+    # 允许 Next.js 前端（localhost:3001）跨域调用 API
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[

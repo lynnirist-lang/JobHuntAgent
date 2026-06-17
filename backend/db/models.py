@@ -25,8 +25,6 @@ class JobStatus(str, Enum):
     PENDING_SEND = "pending_send" # 已入冷却队列，倒计时中（半自动模式）
     SKIPPED = "skipped"           # 用户在 UI 跳过
     SENT = "sent"                 # 打招呼已发送
-    READ = "read"                 # HR 已读
-    REPLIED = "replied"           # HR 有回复
     LOW_PRIORITY = "low_priority" # 留作兼容，不再主动使用
     FAILED = "failed"             # 投递过程出错
 
@@ -35,8 +33,6 @@ class ApplicationStatus(str, Enum):
     """单次投递记录的状态。"""
     APPROVED = "approved"   # 已批准，尚未发送
     SENT = "sent"           # 已发送
-    READ = "read"           # HR 已读
-    REPLIED = "replied"     # 有回复
     FAILED = "failed"       # 发送失败
 
 

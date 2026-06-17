@@ -1,5 +1,5 @@
 ---
-name: generate_greeting
+name: generate-greeting
 version: 1.0.0
 description: 为指定岗位批量生成个性化打招呼语，写入数据库
 skill_type: llm

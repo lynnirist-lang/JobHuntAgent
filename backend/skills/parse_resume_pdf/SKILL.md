@@ -1,5 +1,5 @@
 ---
-name: parse_resume_pdf
+name: parse-resume-pdf
 version: 1.0.0
 description: 解析上传的 PDF 简历，提取结构化信息并填充到 UserProfile
 skill_type: llm

@@ -1,5 +1,5 @@
 ---
-name: apply_job
+name: apply-job
 version: 1.0.0
 description: 对冷却期满的 PENDING_SEND 岗位执行实际投递（点击立即沟通 + 发送打招呼）
 skill_type: automation

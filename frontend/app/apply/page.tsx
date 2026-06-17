@@ -8,16 +8,12 @@ import { RefreshCwIcon } from "lucide-react";
 const APP_STATUS_STYLE: Record<string, { bg: string; color: string }> = {
   approved: { bg: "rgba(59,130,246,0.10)",  color: "#3B82F6" },
   sent:     { bg: "rgba(16,185,129,0.10)",  color: "#10B981" },
-  read:     { bg: "rgba(139,92,246,0.10)",  color: "#8B5CF6" },
-  replied:  { bg: "rgba(16,185,129,0.14)",  color: "#059669" },
   failed:   { bg: "rgba(244,63,94,0.10)",   color: "#F43F5E" },
 };
 
 const APP_STATUS_LABEL: Record<string, string> = {
   approved: "待发送",
   sent: "已发送",
-  read: "已读",
-  replied: "有回复",
   failed: "发送失败",
 };
 
@@ -48,18 +44,11 @@ export default function ApplyPage() {
   const statusFilters = [
     { value: "", label: "全部" },
     { value: "sent", label: "已发送" },
-    { value: "read", label: "已读" },
-    { value: "replied", label: "有回复" },
     { value: "failed", label: "失败" },
   ];
 
-  const repliedCount = apps.filter((a) => a.status === "replied").length;
-  const readCount = apps.filter((a) => a.status === "read").length;
-
   const statCards = [
     { value: todayStats.today_sent, unit: "份", label: "今日已投递",  bg: "rgba(59,130,246,0.08)",  numColor: "#3B82F6", subColor: "#60A5FA" },
-    { value: repliedCount,          unit: "个", label: "有回复",      bg: "rgba(16,185,129,0.08)",  numColor: "#10B981", subColor: "#34D399" },
-    { value: readCount,             unit: "个", label: "HR 已读",     bg: "rgba(139,92,246,0.08)",  numColor: "#8B5CF6", subColor: "#A78BFA" },
     { value: apps.length,           unit: "条", label: "总投递记录",  bg: "rgba(152,152,184,0.08)", numColor: "#5B5B7A", subColor: "#9898B8" },
   ];
 
